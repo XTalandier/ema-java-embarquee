@@ -35,11 +35,9 @@ public class HttpServer implements HttpHandler {
            // Gson gson = new GsonBuilder().excludeFieldsWithModifiers().create();
             DirigeableCommande request = new DirigeableCommande();
             System.out.println("[INFO]Réception d'une requete Http : \n" + buf.toString());
-            long beginDeSer = System.currentTimeMillis();
             try
             {
                 System.out.println("[INFO]Désérialisation de l'objet 'DirigeableCommande'...");
-                
                 JSONParser parser = new JSONParser();
                 Object obj = parser.parse(buf.toString());
                 JSONObject jsonObject = (JSONObject) obj;
@@ -66,10 +64,6 @@ public class HttpServer implements HttpHandler {
                 try
                 {
                     System.out.println("[INFO]Désérialisation réussie");
-                    long endDeSer = System.currentTimeMillis();
-                    float timeSDeSer  = ((float) (endDeSer -beginDeSer )) / 1000f;
-                    System.out.println("[TIME]Temsp de déserialisation : " + timeSDeSer);
-                    
                     ProccessRequest(request, t);
                 }
                 catch(Exception error)
@@ -95,8 +89,7 @@ public class HttpServer implements HttpHandler {
     {        
         System.out.println("[INFO]Sérialisation de l'objet 'DirigeableInfo' au format JSON...");
         //String jsonResponse = gson.toJson(new DirigeableInfo());
-        long beginSer = System.currentTimeMillis();
-
+        
         JSONObject obj = new JSONObject();
 	obj.put("dirigeableId", DirigeableInfo.dirigeableId);
         obj.put("date", DirigeableInfo.date.toString());
@@ -110,26 +103,16 @@ public class HttpServer implements HttpHandler {
         obj.put("heading", DirigeableInfo.heading);
         obj.put("measuredTemperature", DirigeableInfo.measuredTemperature); 
         
-        String jsonResponse = obj.toJSONString(); 
-        
-        long endSer = System.currentTimeMillis();
-        float timeSer = ((float) (endSer-beginSer)) / 1000f;
+        String jsonResponse = obj.toJSONString();     
         System.out.println("[INFO]Sérialisation réussie : \n" + jsonResponse);
-        System.out.println("[TIME]Temps de sérialisation : " + timeSer);
-        
+
         try 
         {
-            System.out.println("[INFO]Envoie de la réponse JSON");
-            long beginSend = System.currentTimeMillis();
             t.sendResponseHeaders(200, jsonResponse.getBytes().length);
-            OutputStream os = t.getResponseBody();            
+            OutputStream os = t.getResponseBody();
+            System.out.println("[INFO]Envoie de la réponse JSON");
             os.write(jsonResponse.getBytes());
             os.close();
-            
-            long endSend = System.currentTimeMillis();
-            float timeSend = ((float) (endSend-beginSend)) / 1000f;
-            System.out.println("[TIME]Temps d'envoie : " + timeSend);
-           
         } 
         catch (Exception error) 
         {
